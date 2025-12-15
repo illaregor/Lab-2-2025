@@ -40,22 +40,34 @@ public class TabulatedFunction {
     }
 
     public double getFunctionValue(double x) {
-        // Восстановлено: Проверка, находится ли x ЗА пределами границ (ИЛИ)
-        if (x < getLeftDomainBorder() || x > getRightDomainBorder()) return Double.NaN;
+        // Если x вне области определения
+        if (x < points[0].getX() || x > points[size - 1].getX()) {
+            return Double.NaN;
+        }
 
-        for (int i = 0; i < size - 1; i++) {
-            if (x >= points[i].getX() && x <= points[i + 1].getX()) {
-                double x0 = points[i].getX();
-                double y0 = points[i].getY();
-                double x1 = points[i + 1].getX();
-                double y1 = points[i + 1].getY();
-
-                // Формула линейной интерполяции
-                return y0 + (y1 - y0) * (x - x0) / (x1 - x0);
+        // 1. Проверка: есть ли точка с таким x
+        for (int i = 0; i < size; i++) {
+            if (Math.abs(points[i].getX() - x) < 1e-9) {
+                return points[i].getY();
             }
         }
+
+        // 2. Интерполяция
+        for (int i = 0; i < size - 1; i++) {
+            double x1 = points[i].getX();
+            double x2 = points[i + 1].getX();
+
+            if (x > x1 && x < x2) {
+                double y1 = points[i].getY();
+                double y2 = points[i + 1].getY();
+
+                return y1 + (y2 - y1) * (x - x1) / (x2 - x1);
+            }
+        }
+
         return Double.NaN;
     }
+
 
     public int getPointsCount() {
         return size;
